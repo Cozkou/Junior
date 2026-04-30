@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 const DEMO_CSS = `
 .junior-dem-thought-enter { animation: junior-dem-thought 0.4s ease-out forwards; }
@@ -53,6 +53,41 @@ const DEMO_CSS = `
   from { opacity: 0; }
   to { opacity: 1; }
 }
+.junior-dem-source-in { animation: junior-dem-source-in 0.65s cubic-bezier(0.22, 0.6, 0.2, 1) forwards; }
+@keyframes junior-dem-source-in {
+  0% { opacity: 0; transform: translateX(-10px); filter: blur(2px); }
+  60% { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateX(0); filter: blur(0); }
+}
+.junior-dem-source-icon { animation: junior-dem-source-icon 0.7s cubic-bezier(0.22, 0.8, 0.2, 1) forwards; }
+@keyframes junior-dem-source-icon {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.junior-dem-caret {
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  margin-left: 1px;
+  vertical-align: -2px;
+  background: #242424;
+  animation: junior-dem-caret 1s steps(1) infinite;
+}
+@keyframes junior-dem-caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.junior-dem-shell-in { animation: junior-dem-shell-in 0.45s cubic-bezier(0.22, 0.6, 0.2, 1) forwards; }
+@keyframes junior-dem-shell-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.junior-dem-attach-in { animation: junior-dem-attach-in 0.5s cubic-bezier(0.22, 0.6, 0.2, 1) forwards; }
+@keyframes junior-dem-attach-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .junior-dem-time-saved { animation: junior-dem-timesaved 0.4s ease forwards; }
 @keyframes junior-dem-timesaved {
   from { opacity: 0; transform: translateY(6px); }
@@ -100,7 +135,12 @@ const DEMO_CSS = `
   .junior-dem-row-pop,
   .junior-dem-recalc-progress,
   .junior-dem-flow,
-  .junior-dem-orb-pulse { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .junior-dem-orb-pulse,
+  .junior-dem-source-in,
+  .junior-dem-source-icon,
+  .junior-dem-shell-in,
+  .junior-dem-attach-in { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .junior-dem-caret { animation: none !important; opacity: 0 !important; }
 }
 `;
 
@@ -231,6 +271,114 @@ const msFont =
 
 const outlookCard =
   "overflow-hidden rounded-[2px] border border-[#edebe9] bg-white shadow-[0_1.6px_3.6px_rgba(0,0,0,0.132),0_0.3px_0.9px_rgba(0,0,0,0.108)]";
+
+type RadarSource = {
+  title: string;
+  body: string;
+  glyph: string;
+  bg: string;
+};
+
+const RADAR_SOURCES: RadarSource[] = [
+  {
+    title: "Press \u00b7 People signal",
+    body: "Acme Developments: COO Sarah Lin departure announced",
+    glyph: "P",
+    bg: "#a4262c"
+  },
+  {
+    title: "Land Registry",
+    body: "NW1 comp transacted at \u00a31,180/sqft (\u22128% vs assumption)",
+    glyph: "L",
+    bg: "#005a9e"
+  },
+  {
+    title: "BoE \u00b7 Monetary policy",
+    body: "+25bps base rate hike; ONS build cost inflation +3.5%",
+    glyph: "\u00a3",
+    bg: "#1a1a1a"
+  },
+  {
+    title: "Companies House",
+    body: "Acme: quarterly accounts overdue 8 days",
+    glyph: "C",
+    bg: "#107c41"
+  }
+];
+
+type AlertToken = { text: string; bold?: boolean };
+type AlertParagraph = { tokens: AlertToken[]; muted?: boolean };
+
+const ALERT_PARAGRAPHS: AlertParagraph[] = [
+  {
+    tokens: [
+      { text: "Macro update: " },
+      { text: "BoE +25bps", bold: true },
+      { text: " base rate hike and " },
+      { text: "ONS build cost inflation +3.5%", bold: true },
+      { text: ". Re-running risk-adjusted models against current portfolio exposure." }
+    ]
+  },
+  {
+    muted: true,
+    tokens: [
+      {
+        text: "Two active facilities cross the high-risk threshold. Risk-adjusted workbooks attached for review before the next IC."
+      }
+    ]
+  }
+];
+
+const ALERT_TOTAL_LEN = ALERT_PARAGRAPHS.reduce(
+  (sum, p) => sum + p.tokens.reduce((s, t) => s + t.text.length, 0),
+  0
+);
+
+function TypedAlertBody({ visibleLen, done }: { visibleLen: number; done: boolean }) {
+  let remaining = visibleLen;
+  let cumulativeBefore = 0;
+
+  const rendered = ALERT_PARAGRAPHS.map((para, pi) => {
+    const paraLen = para.tokens.reduce((s, t) => s + t.text.length, 0);
+    if (cumulativeBefore >= visibleLen) {
+      cumulativeBefore += paraLen;
+      return null;
+    }
+
+    const paraTaken = Math.min(paraLen, visibleLen - cumulativeBefore);
+    cumulativeBefore += paraLen;
+
+    let paraRemaining = paraTaken;
+    const nodes: ReactNode[] = [];
+
+    for (let ti = 0; ti < para.tokens.length; ti++) {
+      const tok = para.tokens[ti];
+      if (paraRemaining <= 0) break;
+      const slice = tok.text.slice(0, paraRemaining);
+      paraRemaining -= slice.length;
+      const node = tok.bold ? (
+        <strong key={ti} className="font-semibold">
+          {slice}
+        </strong>
+      ) : (
+        <span key={ti}>{slice}</span>
+      );
+      nodes.push(node);
+    }
+
+    const isLastVisible = !done && remaining <= paraTaken;
+    remaining -= paraTaken;
+
+    return (
+      <p key={pi} className={cn(pi === 0 ? "m-0" : "mt-1.5 m-0", para.muted && "text-[#605e5c]")}>
+        {nodes}
+        {isLastVisible ? <span className="junior-dem-caret" aria-hidden /> : null}
+      </p>
+    );
+  });
+
+  return <>{rendered}</>;
+}
 
 type SheetTone = "negative" | "positive" | "neutral";
 
@@ -959,7 +1107,10 @@ export function JuniorDemoWidget() {
   const [b4Alert, setB4Alert] = useState(false);
   const [b4ActiveSheet, setB4ActiveSheet] = useState<null | "camden" | "reading">(null);
   const [b4SheetKey, setB4SheetKey] = useState(0);
+  const [b4TypedLen, setB4TypedLen] = useState(0);
+  const [b4TypingDone, setB4TypingDone] = useState(false);
   const b4Timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const b4TypeInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const b4Session = useRef(0);
 
   const rootRef = useRef<HTMLDivElement>(null);
@@ -968,6 +1119,10 @@ export function JuniorDemoWidget() {
   const clearB4TimersOnly = useCallback(() => {
     b4Timers.current.forEach(clearTimeout);
     b4Timers.current = [];
+    if (b4TypeInterval.current) {
+      clearInterval(b4TypeInterval.current);
+      b4TypeInterval.current = null;
+    }
   }, []);
 
   useEffect(() => {
@@ -1019,6 +1174,8 @@ export function JuniorDemoWidget() {
     setB4BrainScale(false);
     setB4Alert(false);
     setB4ActiveSheet(null);
+    setB4TypedLen(0);
+    setB4TypingDone(false);
 
     const wrap = (fn: () => void) => () => {
       if (b4Session.current !== sid) return;
@@ -1030,25 +1187,57 @@ export function JuniorDemoWidget() {
     };
 
     t(() => setB4Streams(() => [true, false, false, false]), 0);
-    t(() => setB4Streams(() => [true, true, false, false]), 400);
-    t(() => setB4Streams(() => [true, true, true, false]), 800);
-    t(() => setB4Streams(() => [true, true, true, true]), 1200);
+    t(() => setB4Streams(() => [true, true, false, false]), 750);
+    t(() => setB4Streams(() => [true, true, true, false]), 1500);
+    t(() => setB4Streams(() => [true, true, true, true]), 2250);
 
     t(() => {
       setB4BrainPulse(true);
       setB4BrainScale(true);
-    }, 600);
+    }, 2400);
 
     t(() => {
       setB4BrainPulse(false);
       setB4Alert(true);
-    }, 3200);
+      setB4TypedLen(0);
+      setB4TypingDone(false);
+
+      if (b4TypeInterval.current) {
+        clearInterval(b4TypeInterval.current);
+        b4TypeInterval.current = null;
+      }
+      b4TypeInterval.current = setInterval(() => {
+        if (b4Session.current !== sid) {
+          if (b4TypeInterval.current) {
+            clearInterval(b4TypeInterval.current);
+            b4TypeInterval.current = null;
+          }
+          return;
+        }
+        setB4TypedLen((n) => {
+          const next = n + 2;
+          if (next >= ALERT_TOTAL_LEN) {
+            if (b4TypeInterval.current) {
+              clearInterval(b4TypeInterval.current);
+              b4TypeInterval.current = null;
+            }
+            setB4TypingDone(true);
+            return ALERT_TOTAL_LEN;
+          }
+          return next;
+        });
+      }, 22);
+    }, 3700);
   }, [clearB4TimersOnly]);
 
   useEffect(
     () => () => {
       b4Timers.current.forEach(clearTimeout);
       b4Timers.current = [];
+      if (b4TypeInterval.current) {
+        clearInterval(b4TypeInterval.current);
+        b4TypeInterval.current = null;
+      }
     },
     []
   );
@@ -1140,8 +1329,8 @@ export function JuniorDemoWidget() {
           <ChapterHead
             index="A"
             slug="Why"
-            title="One of us has been in the credit industry."
-            subtitle="Kiara, on our team, worked at a real estate private credit fund. She went through the grunt work and found the pain points."
+            title="Built from first-hand experience in credit."
+            subtitle="Kiara, one of our team members, interned at a real estate private credit fund and identified three core pain points in the workflow."
             subtitleAlign="center"
           />
 
@@ -2180,33 +2369,31 @@ export function JuniorDemoWidget() {
                 Data streams in
               </p>
               <div className="space-y-2">
-                {[
-                  {
-                    title: "Press · People signal",
-                    body: "Acme Developments: COO Sarah Lin departure announced"
-                  },
-                  {
-                    title: "Land Registry",
-                    body: "NW1 comp transacted at £1,180/sqft (−8% vs assumption)"
-                  },
-                  {
-                    title: "BoE · Monetary policy",
-                    body: "+25bps base rate hike; ONS build cost inflation +3.5%"
-                  },
-                  {
-                    title: "Companies House",
-                    body: "Acme: quarterly accounts overdue 8 days"
-                  }
-                ].map((s, idx) => (
+                {RADAR_SOURCES.map((s, idx) => (
                   <div
                     key={s.title}
                     className={cn(
-                      "rounded-[6px] border border-[rgba(0,0,0,0.08)] bg-[#FFFFFF] px-2.5 py-2 transition-all duration-[400ms] ease-out",
-                      b4Streams[idx] ? "junior-dem-fade-in opacity-100" : "opacity-0"
+                      "rounded-[6px] border border-[rgba(0,0,0,0.08)] bg-[#FFFFFF] px-2.5 py-2",
+                      b4Streams[idx] ? "junior-dem-source-in opacity-100" : "opacity-0"
                     )}
+                    style={{ fontFamily: msFont }}
                   >
-                    <p className="m-0 text-[11px] font-medium leading-tight text-[#185FA5]">{s.title}</p>
-                    <p className="mt-1 m-0 text-[10.5px] leading-snug text-[#5C5C5C]">{s.body}</p>
+                    <div className="flex items-start gap-2">
+                      <span
+                        className={cn(
+                          "flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-sm text-[11px] font-bold leading-none text-white",
+                          b4Streams[idx] && "junior-dem-source-icon"
+                        )}
+                        style={{ backgroundColor: s.bg }}
+                        aria-hidden
+                      >
+                        {s.glyph}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="m-0 text-[11px] font-semibold leading-tight text-[#185FA5]">{s.title}</p>
+                        <p className="mt-1 m-0 text-[10.5px] leading-snug text-[#5C5C5C]">{s.body}</p>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -2286,75 +2473,74 @@ export function JuniorDemoWidget() {
                     <span>Mon 8:13 AM</span>
                   </div>
                 </div>
-                <div className="px-3 py-2 text-[11.5px] leading-[1.55] text-[#242424]">
-                  <p className="m-0">
-                    Macro update: <strong className="font-semibold">BoE +25bps</strong> base rate hike and{" "}
-                    <strong className="font-semibold">ONS build cost inflation +3.5%</strong>. Re-running risk-adjusted
-                    models against current portfolio exposure.
-                  </p>
-                  <p className="mt-1.5 m-0 text-[#605e5c]">
-                    Two active facilities cross the high-risk threshold. Risk-adjusted workbooks attached for review
-                    before the next IC.
-                  </p>
+                <div className="px-3 py-2 text-[11.5px] leading-[1.55] text-[#242424] min-h-[58px]">
+                  <TypedAlertBody visibleLen={b4TypedLen} done={b4TypingDone} />
                 </div>
-                <div className="border-t border-[#edebe9] bg-[#faf9f8] px-3 py-2">
-                  <div className="flex items-center justify-between">
-                    <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.04em] text-[#605e5c]">
-                      Attachments · 2 items
-                    </p>
-                    <span className="text-[10px] text-[#605e5c]">Click to open in Excel</span>
-                  </div>
-                  <div className="mt-1.5 space-y-1">
-                    {(
-                      [
-                        {
-                          key: "camden" as const,
-                          label: "Camden Bridge — Risk-Adjusted.xlsx",
-                          size: "184 KB"
-                        },
-                        {
-                          key: "reading" as const,
-                          label: "Reading Bridge — Risk-Adjusted.xlsx",
-                          size: "162 KB"
-                        }
-                      ]
-                    ).map((att) => (
-                      <button
-                        key={att.key}
-                        type="button"
-                        onClick={() => {
-                          setB4ActiveSheet(att.key);
-                          setB4SheetKey((k) => k + 1);
-                        }}
-                        className={cn(
-                          "group flex w-full items-center gap-2 rounded-sm border border-[#edebe9] bg-white px-2 py-1.5 text-left transition-[background-color,border-color,box-shadow]",
-                          "hover:border-[#107c41] hover:bg-[#f5fbf7] hover:shadow-[0_1px_0_rgba(16,124,65,0.15),0_4px_10px_-6px_rgba(16,124,65,0.45)]",
-                          "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#107c41]"
-                        )}
-                        aria-label={`Open ${att.label} in spreadsheet view`}
-                      >
-                        <span
-                          className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-sm bg-[#107c41] text-[11px] font-bold text-white"
-                          aria-hidden
-                        >
-                          X
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[11px] font-medium text-[#242424]">{att.label}</span>
-                          <span className="block text-[9.5px] text-[#605e5c]">
-                            {att.size} · zoom into key assumptions
-                          </span>
-                        </span>
-                        <span className="shrink-0 text-[12px] text-[#107c41] opacity-0 transition-opacity group-hover:opacity-100" aria-hidden>
-                          ↗
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="border-t border-[#edebe9] bg-white px-3 py-1.5 text-[10px] text-[#605e5c]">
-                  Recommend: covenant-watch on both facilities · IC discussion before next monitoring cycle.
-                </div>
+                {b4TypingDone ? (
+                  <>
+                    <div className="junior-dem-attach-in border-t border-[#edebe9] bg-[#faf9f8] px-3 py-2">
+                      <div className="flex items-center justify-between">
+                        <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.04em] text-[#605e5c]">
+                          Attachments · 2 items
+                        </p>
+                        <span className="text-[10px] text-[#605e5c]">Click to open in Excel</span>
+                      </div>
+                      <div className="mt-1.5 space-y-1">
+                        {(
+                          [
+                            {
+                              key: "camden" as const,
+                              label: "Camden Bridge \u2014 Risk-Adjusted.xlsx",
+                              size: "184 KB"
+                            },
+                            {
+                              key: "reading" as const,
+                              label: "Reading Bridge \u2014 Risk-Adjusted.xlsx",
+                              size: "162 KB"
+                            }
+                          ]
+                        ).map((att) => (
+                          <button
+                            key={att.key}
+                            type="button"
+                            onClick={() => {
+                              setB4ActiveSheet(att.key);
+                              setB4SheetKey((k) => k + 1);
+                            }}
+                            className={cn(
+                              "group flex w-full items-center gap-2 rounded-sm border border-[#edebe9] bg-white px-2 py-1.5 text-left transition-[background-color,border-color,box-shadow]",
+                              "hover:border-[#107c41] hover:bg-[#f5fbf7] hover:shadow-[0_1px_0_rgba(16,124,65,0.15),0_4px_10px_-6px_rgba(16,124,65,0.45)]",
+                              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#107c41]"
+                            )}
+                            aria-label={`Open ${att.label} in spreadsheet view`}
+                          >
+                            <span
+                              className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-sm bg-[#107c41] text-[11px] font-bold text-white"
+                              aria-hidden
+                            >
+                              X
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-[11px] font-medium text-[#242424]">{att.label}</span>
+                              <span className="block text-[9.5px] text-[#605e5c]">
+                                {att.size} · zoom into key assumptions
+                              </span>
+                            </span>
+                            <span
+                              className="shrink-0 text-[12px] text-[#107c41] opacity-0 transition-opacity group-hover:opacity-100"
+                              aria-hidden
+                            >
+                              ↗
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="junior-dem-attach-in border-t border-[#edebe9] bg-white px-3 py-1.5 text-[10px] text-[#605e5c]">
+                      Recommend: covenant-watch on both facilities · IC discussion before next monitoring cycle.
+                    </div>
+                  </>
+                ) : null}
               </div>
             </div>
 
