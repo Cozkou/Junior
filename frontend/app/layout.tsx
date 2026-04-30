@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap"
+});
+
 export const metadata: Metadata = {
-  title: "Sterile Site",
-  description: "Minimal Next.js site with inbox and pitch deck views"
+  title: "JUNIOR",
+  description: "Template desc for now."
 };
 
 export default function RootLayout({
@@ -11,7 +17,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

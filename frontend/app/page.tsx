@@ -1,45 +1,61 @@
 import Link from "next/link";
+import { HomeHouse } from "../components/HomeHouse";
 
 export default function HomePage() {
   return (
-    <main
-      className="viewport"
-      style={{ display: "grid", placeItems: "center", padding: "1rem" }}
-    >
-      <section
-        className="card"
-        style={{
-          width: "min(640px, 100%)",
-          padding: "2rem",
-          textAlign: "center",
-          display: "grid",
-          gap: "1.25rem"
-        }}
-      >
-        <div style={{ display: "grid", gap: "0.5rem" }}>
-          <h1 style={{ margin: 0, fontSize: "clamp(1.5rem, 4vw, 2.2rem)" }}>
-            Sterile Demo Site
-          </h1>
-          <p style={{ margin: 0, color: "var(--muted)" }}>
-            Choose where to continue.
-          </p>
-        </div>
+    <main className="viewport bg-cross-subtle">
+      <div className="home-shell">
+        <div className="home-split">
+          <header>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "0.6875rem",
+                fontWeight: 600,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                color: "var(--muted)"
+              }}
+            >
+              Welcome
+            </p>
+            <h1 className="home-title">JUNIOR</h1>
+            <p className="home-desc">Template desc for now.</p>
+            <div className="home-divider" aria-hidden />
+            <nav className="home-foot" aria-label="Secondary links">
+              <Link className="link-quiet" href="/pitch-deck">
+                Pitch deck
+              </Link>
+              <span className="home-foot-sep" aria-hidden />
+              <Link className="link-quiet" href="/begin">
+                Inbox preview
+              </Link>
+            </nav>
+          </header>
 
-        <div
-          style={{
-            display: "grid",
-            gap: "0.75rem",
-            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))"
-          }}
-        >
-          <Link className="btn" href="/begin">
-            Begin
-          </Link>
-          <Link className="btn" href="/pitch-deck">
-            Pitch Deck
-          </Link>
+          <section className="home-visual" aria-label="Featured">
+            <div className="home-visual-inner">
+              <HomeHouse className="home-house-svg" />
+            </div>
+            <Link className="btn-primary" href="/begin">
+              Enter
+            </Link>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "0.75rem",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                color: "var(--muted)",
+                opacity: 0.85,
+                fontWeight: 500
+              }}
+            >
+              House · interaction coming soon
+            </p>
+          </section>
         </div>
-      </section>
+      </div>
     </main>
   );
 }
