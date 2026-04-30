@@ -1,5 +1,5 @@
-import { JuniorInbox } from "@/components/JuniorInbox";
+import { HomeExperience } from "@/components/HomeExperience";
 
 export default function HomePage() {
-  return <JuniorInbox />;
+  return <HomeExperience />;
 }

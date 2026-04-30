@@ -3,37 +3,39 @@
 import type { DealAnalysis, RiskSeverity } from "@/types/deal";
 import { cn } from "@/lib/cn";
 
-function SeverityDot({ severity }: { severity: RiskSeverity }) {
-  const color =
-    severity === "high"
-      ? "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]"
-      : severity === "medium"
-        ? "bg-amber-400"
-        : "bg-emerald-600/80";
-  return (
-    <span
-      className={cn("inline-block h-2 w-2 shrink-0 rounded-full", color)}
-      aria-hidden
-    />
-  );
-}
+const sevDot: Record<RiskSeverity, string> = {
+  high: "bg-red-500",
+  medium: "bg-zinc-500",
+  low: "bg-zinc-300"
+};
+
+const sevLabel: Record<RiskSeverity, string> = {
+  high: "HIGH",
+  medium: "MED",
+  low: "LOW"
+};
 
 function AnnotationSkeleton() {
   return (
-    <div className="rounded-lg border border-indigo-500/25 bg-zinc-950/80 p-4 ring-1 ring-indigo-400/20">
-      <div className="mb-3 h-3 w-36 animate-pulse rounded bg-zinc-800" />
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+    <section className="rounded-md border border-zinc-200 bg-white">
+      <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-2.5">
+        <div className="h-3 w-32 animate-pulse rounded bg-zinc-200" />
+        <div className="h-3 w-16 animate-pulse rounded bg-zinc-200" />
+      </header>
+      <div className="grid grid-cols-2 gap-px bg-zinc-200 sm:grid-cols-3">
         {[1, 2, 3, 4, 5, 6].map((k) => (
-          <div key={k} className="h-10 animate-pulse rounded bg-zinc-800/80" />
+          <div key={k} className="bg-white p-3">
+            <div className="h-2 w-12 animate-pulse rounded bg-zinc-200" />
+            <div className="mt-2 h-3 w-20 animate-pulse rounded bg-zinc-200" />
+          </div>
         ))}
       </div>
-      <div className="mt-4 h-4 w-2/3 animate-pulse rounded bg-zinc-800" />
-      <div className="mt-2 space-y-2">
-        {[1, 2, 3].map((k) => (
-          <div key={k} className="h-3 w-full animate-pulse rounded bg-zinc-800/60" />
-        ))}
+      <div className="space-y-2 p-4">
+        <div className="h-3 w-2/3 animate-pulse rounded bg-zinc-200" />
+        <div className="h-3 w-full animate-pulse rounded bg-zinc-200" />
+        <div className="h-3 w-3/4 animate-pulse rounded bg-zinc-200" />
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -51,110 +53,132 @@ export function JuniorDealAnnotation(props: {
 
   if (error && !analysis) {
     return (
-      <div className="rounded-lg border border-red-500/35 bg-red-950/20 p-4 text-sm text-red-200 ring-1 ring-red-500/20">
-        <p className="font-medium text-red-100">Analysis unavailable</p>
-        <p className="mt-1 text-red-200/80">{error}</p>
-      </div>
+      <section className="rounded-md border border-zinc-300 bg-white px-4 py-3">
+        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.32em] text-red-600">
+          Analysis unavailable
+        </p>
+        <p className="mt-1 text-[12px] leading-relaxed text-zinc-600">{error}</p>
+      </section>
     );
   }
 
   if (!analysis) return null;
 
-  return (
-    <>
-      <article
-        className="rounded-lg border border-indigo-500/40 bg-gradient-to-br from-zinc-950/90 to-indigo-950/20 p-4 ring-1 ring-indigo-400/25"
-        aria-label="Junior deal analysis"
-      >
-        <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {(
-            [
-              ["Loan size", analysis.loanSize],
-              ["LTV", analysis.ltv],
-              ["Sponsor", analysis.sponsor],
-              ["Sector", analysis.sector],
-              ["Exit", analysis.exitStrategy],
-              ["Term", analysis.term]
-            ] as const
-          ).map(([k, v]) => (
-            <div
-              key={k}
-              className="rounded-md border border-zinc-800/80 bg-zinc-900/60 px-2.5 py-2"
-            >
-              <dt className="text-[9px] font-medium uppercase tracking-wider text-zinc-500">
-                {k}
-              </dt>
-              <dd className="mt-0.5 text-[12px] font-medium leading-snug text-zinc-100">
-                {v}
-              </dd>
-            </div>
-          ))}
-        </dl>
+  const items: Array<[string, string]> = [
+    ["Loan size", analysis.loanSize],
+    ["LTV", analysis.ltv],
+    ["Sponsor", analysis.sponsor],
+    ["Sector", analysis.sector],
+    ["Exit", analysis.exitStrategy],
+    ["Term", analysis.term]
+  ];
 
-        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-zinc-800/70 pt-4">
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-            Mandate fit
+  return (
+    <section
+      className="overflow-hidden rounded-md border border-zinc-200 bg-white"
+      aria-label="Junior deal analysis"
+    >
+      {/* Header band */}
+      <header className="flex items-center justify-between gap-3 border-b border-zinc-200 bg-zinc-50/60 px-4 py-2">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inset-0 animate-pulse rounded-full bg-red-500" />
           </span>
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.32em] text-zinc-900">
+            Junior · Analysis
+          </span>
+        </div>
+        <div className="flex items-center gap-3 font-mono text-[9.5px] uppercase tracking-[0.28em] text-zinc-400">
+          <span>
+            CONF{" "}
+            <strong className="tabular-nums text-zinc-900">{analysis.confidence}%</strong>
+          </span>
+          <span aria-hidden>·</span>
           <span
             className={cn(
-              "rounded px-2 py-0.5 text-[11px] font-bold tracking-wide",
+              "rounded-sm border px-1 py-px tracking-[0.22em]",
               analysis.mandateFit.pass
-                ? "bg-emerald-500/15 text-emerald-300"
-                : "bg-red-500/15 text-red-300"
+                ? "border-zinc-900 bg-zinc-900 text-white"
+                : "border-red-400 bg-white text-red-600"
             )}
           >
             {analysis.mandateFit.pass ? "PASS" : "FAIL"}
           </span>
-          <p className="w-full text-[12px] leading-relaxed text-zinc-300">
-            {analysis.mandateFit.reason}
-          </p>
         </div>
+      </header>
 
-        <div className="mt-4 border-t border-zinc-800/70 pt-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-            Risk flags
-          </p>
-          <ul className="mt-2 space-y-1.5">
-            {analysis.riskFlags.slice(0, 6).map((r, i) => (
-              <li key={i} className="flex gap-2 text-[12px] text-zinc-300">
-                <span className="mt-1.5 shrink-0">
-                  <SeverityDot severity={r.severity} />
-                </span>
-                <span className="leading-snug">{r.flag}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {/* Data grid (hairline lines) */}
+      <dl className="grid grid-cols-2 gap-px bg-zinc-200 sm:grid-cols-3">
+        {items.map(([k, v]) => (
+          <div key={k} className="flex flex-col bg-white px-4 py-2.5">
+            <dt className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-zinc-400">
+              {k}
+            </dt>
+            <dd className="mt-0.5 text-[12.5px] font-semibold leading-snug text-zinc-900">
+              {v}
+            </dd>
+          </div>
+        ))}
+      </dl>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-zinc-800/70 pt-3 text-[11px] text-zinc-500">
-          <span>
-            Confidence{" "}
-            <strong className="tabular-nums text-zinc-300">{analysis.confidence}%</strong>
+      {/* Mandate reason */}
+      <div className="border-t border-zinc-200 px-4 py-3">
+        <p className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-zinc-400">
+          Mandate fit
+        </p>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-zinc-700">
+          {analysis.mandateFit.reason}
+        </p>
+      </div>
+
+      {/* Risk flags */}
+      <div className="border-t border-zinc-200 px-4 py-3">
+        <p className="font-mono text-[9px] font-bold uppercase tracking-[0.28em] text-zinc-400">
+          Risk flags · {analysis.riskFlags.length}
+        </p>
+        <ul className="mt-2 divide-y divide-zinc-100">
+          {analysis.riskFlags.slice(0, 6).map((r, i) => (
+            <li
+              key={i}
+              className="grid grid-cols-[10px_36px_1fr] items-start gap-2.5 py-1.5"
+            >
+              <span
+                className={cn("mt-1.5 h-1.5 w-1.5 rounded-full", sevDot[r.severity])}
+                aria-hidden
+              />
+              <span className="font-mono text-[9px] font-bold tracking-[0.22em] text-zinc-500">
+                {sevLabel[r.severity]}
+              </span>
+              <span className="text-[12px] leading-snug text-zinc-700">{r.flag}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Pattern observations (collapsible) */}
+      <details className="group border-t border-zinc-200">
+        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2 text-[11px] font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 marker:content-none [&::-webkit-details-marker]:hidden">
+          <span className="font-mono text-[9px] font-bold uppercase tracking-[0.32em] text-zinc-500">
+            Pattern memory · 247 cases · 31 post-mortems
           </span>
-          <span>{analyzedLabel ? `Analysed by Junior · ${analyzedLabel}` : "Analysed by Junior"}</span>
-        </div>
-      </article>
-
-      <details className="group mt-3 rounded-md border border-blue-500/30 bg-blue-950/10">
-        <summary className="cursor-pointer list-none px-3 py-2 text-[11px] font-medium text-blue-200/90 marker:content-none [&::-webkit-details-marker]:hidden">
-          <span className="inline-flex items-center gap-2">
-            Fund reasoning
-            <span className="text-[10px] font-normal text-blue-300/60 group-open:rotate-180">
-              ▾
-            </span>
+          <span className="font-mono text-[10px] text-zinc-400 transition-transform group-open:rotate-180">
+            ▾
           </span>
         </summary>
-        <div className="border-t border-blue-500/20 px-3 py-2 pb-3 text-[11px] leading-relaxed text-blue-100/85">
-          <p className="text-zinc-400">
-            Based on 247 prior decisions and 31 post-mortems.
-          </p>
-          <ul className="mt-2 list-disc space-y-1 pl-4">
+        <div className="border-t border-zinc-200 bg-zinc-50/40 px-4 py-3">
+          <ul className="list-disc space-y-1 pl-4 text-[12px] leading-relaxed text-zinc-700">
             {analysis.patternObservations.map((o, i) => (
               <li key={i}>{o}</li>
             ))}
           </ul>
         </div>
       </details>
-    </>
+
+      {/* Footer meta */}
+      <footer className="flex items-center justify-between border-t border-zinc-200 bg-zinc-50/60 px-4 py-2 font-mono text-[9.5px] uppercase tracking-[0.28em] text-zinc-400">
+        <span>Junior 1.4 · sterile/light</span>
+        <span>{analyzedLabel ?? "—"}</span>
+      </footer>
+    </section>
   );
 }
