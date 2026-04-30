@@ -365,6 +365,18 @@ export function HalkinSkyscraper({ className }: { className?: string }) {
       {/* foundation step */}
       <rect x={TOWER_X - 22} y={TOWER_BOTTOM + 64} width={TOWER_W + 44} height="4" fill="#94a3b8" />
       <rect x={TOWER_X - 22} y={TOWER_BOTTOM + 68} width={TOWER_W + 44} height="2" fill="#cbd5e1" />
+
+      {/* === 3D PODIUM ================================================== */}
+      {/* Top face — isometric tilt */}
+      <path d="M10 735 L230 735 L244 722 L24 722 Z" fill="#dae2eb" stroke="#b0bbc8" strokeWidth="0.5" />
+      {/* Front face */}
+      <path d="M10 735 L230 735 L230 758 L10 758 Z" fill="#c8d3dd" stroke="#b0bbc8" strokeWidth="0.5" />
+      {/* Right depth */}
+      <path d="M230 735 L244 722 L244 745 L230 758 Z" fill="#9faab7" stroke="#8a96a5" strokeWidth="0.5" />
+      {/* Top seam */}
+      <line x1="10" y1="735" x2="230" y2="735" stroke="#b8c4d0" strokeWidth="0.7" />
+      {/* Ground shadow */}
+      <ellipse cx="122" cy="773" rx="108" ry="5.5" fill="#0b1320" opacity="0.09" />
     </svg>
   );
 }

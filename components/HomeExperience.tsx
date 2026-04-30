@@ -56,19 +56,25 @@ export function HomeExperience() {
       setPhase("towerZoom");
 
       if (m === "pitch") {
-        await wait(420);
+        // Tower zooms into the lobby entrance over 700 ms, then flash + navigate
+        await wait(680);
         setPhase("exit");
-        await wait(240);
+        await wait(260);
         router.push("/pitch-deck");
         return;
       }
 
-      // Begin: let the tower scale visibly first, then crossfade into the hallway
-      await wait(220);
+      // Begin: deep tower zoom overlaps with the corridor entering animation.
+      // 1) Tower begins scaling (ease-in, large scale, 720 ms total).
+      // 2) At 320 ms the corridor snaps to "entering" (scale 1.55, opacity 0) — no transition.
+      // 3) 55 ms later we flip to "in" → corridor decelerates from 1.55→1 while fading in.
+      // 4) After the corridor settles (~600 ms), we make the hallway interactive.
+      await wait(320);
+      setHallwayPhase("entering");
+      await wait(55);
       setHallwayPhase("in");
-      await wait(280);
+      await wait(580);
       setPhase("hallway");
-      // Awaiting user click on a door
     },
     [reducedMotion, router]
   );
@@ -123,24 +129,28 @@ export function HomeExperience() {
   const busy = phase !== "idle";
   const showFlash = phase === "exit";
 
-  // Tower transform — both modes use this; origin differs.
-  // Opacity is kept at 1; the hallway view (begin) or the white flash (pitch)
-  // covers the tower as it reaches max scale, so there's no visible cut.
+  // Tower transform — origin targets a convincing depth point inside the building.
+  // "begin" zooms toward the mid-facade (floors 8-12 area) so the hallway corridor
+  // feels like it lives behind those windows.
+  // "pitch" zooms into the lobby entrance at the base.
   const towerStyle = (): CSSProperties => {
     if (phase === "idle") {
       return {
         transform: "scale(1)",
         opacity: 1,
         transformOrigin: "50% 50%",
-        transition: "transform 0.42s cubic-bezier(0.5, 0, 0.32, 1)"
+        transition: "transform 0.4s cubic-bezier(0.5, 0, 0.32, 1)"
       };
     }
-    const origin = mode === "pitch" ? "50% 92%" : "50% 44%";
+    const origin = mode === "pitch" ? "50% 93%" : "50% 48%";
     return {
-      transform: "scale(8)",
+      // scale(22) fills the screen with building texture — the corridor
+      // fades in at scale(1.55) before the zoom finishes, creating the overlap.
+      transform: "scale(22)",
       opacity: 1,
       transformOrigin: origin,
-      transition: "transform 0.5s cubic-bezier(0.5, 0, 0.32, 1)"
+      // Ease-in acceleration: starts gentle, rushes in at the end
+      transition: "transform 0.72s cubic-bezier(0.42, 0, 1, 1)"
     };
   };
 
@@ -172,8 +182,7 @@ export function HomeExperience() {
         onExit={exitOffice}
       />
 
-      {/* Home shell — stays visible during towerZoom so the user actually sees the
-          building scale up; hides afterward when the next view takes over */}
+      {/* Home shell */}
       <main
         className={cn(
           "viewport-lock home-grid bg-cross-subtle text-zinc-900",
@@ -182,33 +191,8 @@ export function HomeExperience() {
         )}
         aria-hidden={busy}
       >
-        {/* HUD chrome */}
-        <div className="hud-chrome pointer-events-none">
-          <div className="hud-tick hud-tl" />
-          <div className="hud-tick hud-tr" />
-          <div className="hud-tick hud-bl" />
-          <div className="hud-tick hud-br" />
-          <div className="hud-bar hud-bar-top">
-            <span>JUNIOR / OS · v0.9.4</span>
-            <span className="hud-bar-dot" />
-            <span>HALKIN BUILDING ▸ LOBBY</span>
-            <span className="hud-bar-dot" />
-            <span>PROTOTYPE</span>
-          </div>
-          <div className="hud-bar hud-bar-bot">
-            <span>LAT 51.5135 · LON -0.0902</span>
-            <span className="hud-bar-dot" />
-            <span>FLOOR 13 · 5 SUITES</span>
-            <span className="hud-bar-dot" />
-            <span>SCAN OK</span>
-          </div>
-        </div>
-
         <div className="home-inner">
           <section className="home-copy">
-            <p className="home-eyebrow">
-              <span className="home-eyebrow-dot" /> AGENT INGRESS
-            </p>
 
             <div className="home-title-wrap">
               <h1
@@ -217,51 +201,116 @@ export function HomeExperience() {
               >
                 JUNIOR
               </h1>
-              <span className="home-strike" aria-hidden />
+              {/* Graffiti spray-paint strike-through */}
+              <svg
+                className="home-graffiti"
+                viewBox="0 0 320 56"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  {/* Wide diffuse halo — simulates the mist edge of spray paint */}
+                  <filter id="gr-halo" x="-12%" y="-250%" width="124%" height="600%">
+                    <feGaussianBlur stdDeviation="6" />
+                  </filter>
+                  {/* Soft mid-range blur for the body of the spray */}
+                  <filter id="gr-mid" x="-6%" y="-120%" width="112%" height="340%">
+                    <feGaussianBlur stdDeviation="2.8" />
+                  </filter>
+                </defs>
+
+                {/* Outermost halo — very faint, wide */}
+                <path
+                  d="M2 29 C18 22, 50 37, 88 27 C124 17, 160 34, 198 25 C230 16, 266 31, 298 21 C310 17, 320 22, 326 19"
+                  stroke="#ef4444"
+                  strokeWidth="34"
+                  strokeLinecap="round"
+                  opacity="0.07"
+                  filter="url(#gr-halo)"
+                />
+                {/* Mid spray body */}
+                <path
+                  d="M2 29 C20 23, 52 38, 88 27 C124 17, 160 34, 198 25 C230 16, 265 31, 297 21 C309 18, 319 23, 325 20"
+                  stroke="#ef4444"
+                  strokeWidth="16"
+                  strokeLinecap="round"
+                  opacity="0.22"
+                  filter="url(#gr-mid)"
+                />
+                {/* Core paint band — dense, slightly textured */}
+                <path
+                  d="M2 29 C22 23, 52 39, 88 28 C124 17, 160 35, 198 25 C230 16, 266 32, 296 22 C308 19, 318 24, 324 21"
+                  stroke="#ef4444"
+                  strokeWidth="10"
+                  strokeLinecap="round"
+                  opacity="0.9"
+                />
+                {/* Thin sharp centre-line (densest paint deposit) */}
+                <path
+                  d="M2 29 C22 24, 52 39, 88 28 C124 17, 160 35, 198 25 C230 16, 266 32, 296 22 C308 19, 318 24, 324 21"
+                  stroke="#dc2626"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  opacity="0.6"
+                />
+                {/* Upper overspray wisp */}
+                <path
+                  d="M4 23 C22 17, 52 31, 88 21 C124 11, 160 28, 196 18 C228 9, 264 25, 296 15"
+                  stroke="#f87171"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  opacity="0.28"
+                  filter="url(#gr-mid)"
+                />
+                {/* Lower drip / run of paint */}
+                <path
+                  d="M3 36 C24 30, 54 44, 90 34 C126 24, 162 40, 200 31 C232 22, 268 38, 298 28"
+                  stroke="#b91c1c"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  opacity="0.48"
+                />
+                {/* Secondary thin drip below */}
+                <path
+                  d="M4 40 C26 34, 56 47, 92 37 C128 27, 164 43, 202 33 C234 24, 270 40, 300 30"
+                  stroke="#dc2626"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  opacity="0.2"
+                />
+              </svg>
             </div>
 
-            <div className="home-meta">
-              <span>JUNIOR/OS</span>
-              <span className="home-meta-dot" />
-              <span>HALKIN BUILDING</span>
-              <span className="home-meta-dot" />
-              <span>L13 · SUITE GRID</span>
-            </div>
+            <p className="home-tagline">
+              AI deal-flow inbox for private credit funds.
+            </p>
 
             <div className="home-desc">
               <p>
-                The original surface is deprecated. Junior was a working title for an
-                institutional mailroom that never learned to stay quiet — we are crossing it
-                out on purpose.
-              </p>
-              <p>
-                Beyond this lobby is a sterile shell on Floor 13: five suites, fifteen
-                analysts. Pick a door, pick a person — their inbox opens for you.
+                Junior reads broker submissions, extracts deal terms, scores mandate
+                fit, flags risk, and drafts replies — so your team spends time on
+                decisions, not admin.
               </p>
             </div>
 
-            <nav className="home-actions" aria-label="Primary">
+            <nav className="home-actions" aria-label="Primary navigation">
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => void enter("begin")}
-                className="home-cta home-cta-ghost"
+                className="home-btn home-btn-ghost"
               >
-                <span className="home-cta-tag">B1</span>
-                <span className="home-cta-label">Begin</span>
-                <span className="home-cta-sub">Hallway · 5 suites</span>
-                <span className="home-cta-arrow" aria-hidden>→</span>
+                Begin <span aria-hidden>→</span>
               </button>
               <button
                 type="button"
                 disabled={busy}
                 onClick={() => void enter("pitch")}
-                className="home-cta home-cta-primary"
+                className="home-btn home-btn-dark"
               >
-                <span className="home-cta-tag">B2</span>
-                <span className="home-cta-label">Pitch deck</span>
-                <span className="home-cta-sub">Lobby · direct</span>
-                <span className="home-cta-arrow" aria-hidden>→</span>
+                Pitch deck <span aria-hidden>→</span>
               </button>
             </nav>
           </section>
