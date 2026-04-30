@@ -1,5 +1,5 @@
 /**
- * Minimal house illustration for the home hero — vector for crisp zoom/interaction later.
+ * Minimal house illustration for the home hero; vector for crisp zoom/interaction later.
  */
 export function HomeHouse({ className }: { className?: string }) {
   return (
