@@ -1277,7 +1277,7 @@ export function JuniorDemoWidget() {
       >
         <header className="snap-start snap-always box-border flex min-h-dvh flex-col justify-center border-b border-[rgba(0,0,0,0.08)] px-3 pb-14 pt-12 md:pb-20 md:pt-14">
           <p className="m-0 font-mono text-[10px] uppercase tracking-[0.14em] text-[#8A8A8A]" style={monoFont}>
-            Junior · Pitch deck · KLC Financial Intelligence
+            Junior · Pitch deck · Made by KLC (Kiara, Lee, Cosmin)
           </p>
           <h1 className="mt-5 m-0 max-w-[36ch] text-[clamp(1.75rem,5.2vw,3.15rem)] font-medium leading-[1.08] tracking-[-0.03em] text-[#1A1A1A]">
             A tool designed to replace junior credit analysts

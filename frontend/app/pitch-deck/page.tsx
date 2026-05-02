@@ -9,7 +9,7 @@ const slides: { headline: string; body: string[] }[] = [
     body: [
       "AI built for the people who can't afford to be wrong.",
       "An AI junior analyst for private credit funds.",
-      "KLC · Financial Intelligence"
+      "Made by KLC (Kiara, Lee, Cosmin)"
     ]
   },
   {
