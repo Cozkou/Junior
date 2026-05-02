@@ -1292,30 +1292,30 @@ export function JuniorDemoWidget() {
           <div className="mt-10 grid max-w-xl grid-cols-1 gap-6 border-t border-[rgba(0,0,0,0.08)] pt-8 sm:grid-cols-3 sm:gap-4">
             <div>
               <p className="m-0 font-mono text-[9px] uppercase tracking-[0.12em] text-[#8A8A8A]" style={monoFont}>
-                Size
-              </p>
-              <p className="mt-1 m-0 text-[clamp(1.0625rem,2.85vw,1.35rem)] font-medium leading-tight tracking-tight text-[#1A1A1A]">
-                £1m–£500m+
-              </p>
-              <p className="mt-1 m-0 text-[11px] text-[#5C5C5C]">Camden Bridge · £12m walkthrough</p>
-            </div>
-            <div>
-              <p className="m-0 font-mono text-[9px] uppercase tracking-[0.12em] text-[#8A8A8A]" style={monoFont}>
-                Staged run
+                Time saved
               </p>
               <p className="mt-1 m-0 text-[clamp(1.25rem,3vw,1.5rem)] font-medium tracking-tight text-[#1A1A1A] tabular-nums">
-                32s
+                ≈12h / wk
               </p>
-              <p className="mt-1 m-0 text-[11px] text-[#5C5C5C]">Human morning vs machine pass</p>
+              <p className="mt-1 m-0 text-[11px] text-[#5C5C5C]">Reclaimed per analyst</p>
             </div>
             <div>
               <p className="m-0 font-mono text-[9px] uppercase tracking-[0.12em] text-[#8A8A8A]" style={monoFont}>
-                Governance
+                Market
               </p>
-              <p className="mt-1 m-0 text-[clamp(1.25rem,3vw,1.5rem)] font-medium tracking-tight text-[#6B4FBB]">
-                3 tiers
+              <p className="mt-1 m-0 text-[clamp(1.25rem,3vw,1.5rem)] font-medium tracking-tight text-[#6B4FBB] tabular-nums">
+                $2.1T
               </p>
-              <p className="mt-1 m-0 text-[11px] text-[#5C5C5C]">Silent / Drafts / Asks</p>
+              <p className="mt-1 m-0 text-[11px] text-[#5C5C5C]">Global private credit AUM</p>
+            </div>
+            <div>
+              <p className="m-0 font-mono text-[9px] uppercase tracking-[0.12em] text-[#8A8A8A]" style={monoFont}>
+                In scope
+              </p>
+              <p className="mt-1 m-0 text-[clamp(1.25rem,3vw,1.5rem)] font-medium tracking-tight text-[#1A1A1A] tabular-nums">
+                1,800+
+              </p>
+              <p className="mt-1 m-0 text-[11px] text-[#5C5C5C]">Active private credit funds</p>
             </div>
           </div>
 
@@ -1435,7 +1435,7 @@ export function JuniorDemoWidget() {
             index="B"
             slug="Stack"
             title="How Junior is wired."
-            subtitle="Lives in your inbox. Reasons with Claude. Grounded in your firm\u2019s data, with permissioned retrieval and a background watch on the macro."
+            subtitle="Lives in your inbox. Reasons with Claude. Grounded in your firm’s data, with permissioned retrieval and a background watch on the macro."
             subtitleAlign="center"
           />
 
