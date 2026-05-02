@@ -1663,8 +1663,26 @@ export function JuniorDemoWidget() {
           <ChapterHead
             index="02"
             slug="Parity"
-            title="The same email, analysed by Junior"
+            title="A day’s work, in 32 seconds."
+            subtitle="The same email, analysed by Junior. Same checks, same recommendation, end to end."
+            subtitleAlign="center"
           />
+
+          <div className="mb-5 flex flex-wrap items-center justify-center gap-2 text-[11px]" style={{ fontFamily: msFont }}>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(0,0,0,0.08)] bg-white px-3 py-1 text-[#5C5C5C]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#8A8A8A]" aria-hidden />
+              Human analyst
+              <span className="ml-1 font-semibold tabular-nums text-[#1A1A1A]">≈ 4–6h</span>
+            </span>
+            <span className="font-mono text-[10px] tracking-[0.18em] text-[#8A8A8A]" aria-hidden>
+              VS
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#1A1A1A] px-3 py-1 text-white">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#A78BFA]" aria-hidden />
+              Junior
+              <span className="ml-1 font-semibold tabular-nums">32s</span>
+            </span>
+          </div>
 
           <div className={cn(sectionTint, "p-4")}>
             <div className="relative isolate min-h-[min(520px,78dvh)]">
@@ -1874,10 +1892,11 @@ export function JuniorDemoWidget() {
 
                     {b2Stage >= 3 && (
                       <p
-                        className="junior-dem-time-saved m-0 mt-3 border-t border-[#edebe9] pt-2 text-center text-[11px] text-[#605e5c]"
+                        className="junior-dem-time-saved m-0 mt-3 flex items-center justify-center gap-1.5 border-t border-[#edebe9] pt-2 text-center text-[11px] text-[#107c41]"
                         style={{ fontFamily: msFont }}
                       >
-                        A day&apos;s work · 32 seconds.
+                        <span aria-hidden>✓</span>
+                        Recommendation ready in 32s.
                       </p>
                     )}
                   </div>
